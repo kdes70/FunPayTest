@@ -10,11 +10,11 @@ use mysqli;
 
 class Database implements DatabaseInterface
 {
-    private const SKIP_VALUE = '___SKIP___';
-    private const PATTERN_MAIN = '/\{[^{}]*\}|\?[#dfа]?/';
-    private const PATTERN_CONDITIONAL = '/\?[#dfа]?/';
+    private const string SKIP_VALUE = '___SKIP___';
+    private const string PATTERN_MAIN = '/\{[^{}]*\}|\?[#dfа]?/';
+    private const string PATTERN_CONDITIONAL = '/\?[#dfа]?/';
 
-    public function __construct(private mysqli $mysqli)
+    public function __construct(private readonly mysqli $mysqli)
     {
     }
 
@@ -24,11 +24,14 @@ class Database implements DatabaseInterface
         return preg_replace_callback(self::PATTERN_MAIN, fn($match) => $this->processMatch($match[0], $args, $index), $query);
     }
 
-    public function skip()
+    public function skip(): string
     {
         return self::SKIP_VALUE;
     }
 
+    /**
+     * @throws Exception
+     */
     private function processMatch(string $param, array $args, int &$index): string
     {
         if ($param[0] === '{') {
@@ -48,12 +51,11 @@ class Database implements DatabaseInterface
         $tempIndex = $index;
         $result = preg_replace_callback(self::PATTERN_CONDITIONAL, fn($match) => $this->processConditionalParam($match[0], $args, $tempIndex), $block);
 
+        $index = $tempIndex;
         if (str_contains($result, self::SKIP_VALUE)) {
-            $index = $tempIndex;
             return '';
         }
 
-        $index = $tempIndex;
         return $result;
     }
 

@@ -17,7 +17,7 @@ echo "Waiting for databases to be ready..."
 sleep 15
 
 # Запускаем тесты
-docker-compose run app php test.php
+docker-compose run --rm app php test.php
 
 # Останавливаем контейнеры
 docker-compose down

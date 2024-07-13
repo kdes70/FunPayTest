@@ -12,24 +12,13 @@ spl_autoload_register(function ($class) {
     require_once $filename;
 });
 
-$mysqli = @new mysqli(
-    getenv('MYSQL_HOST'),
-    getenv('MYSQL_USERNAME'),
-    getenv('MYSQL_ROOT_PASSWORD'),
-    getenv('MYSQL_DATABASE'),
-    getenv('MYSQL_PORT')
-);
-
+$mysqli = @new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
 if ($mysqli->connect_errno) {
     throw new Exception($mysqli->connect_error);
 }
 
 $db = new Database($mysqli);
 $test = new DatabaseTest($db);
-try {
-    $test->testBuildQuery();
-} catch (Exception $e) {
-    exit($e->getMessage());
-}
+$test->testBuildQuery();
 
 exit('OK');
